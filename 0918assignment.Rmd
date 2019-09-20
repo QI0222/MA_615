@@ -1,0 +1,51 @@
+---
+title: "0918 Assignment"
+output: pdf_document
+latex_engine: xelatex
+---
+
+
+```{r setup, include=FALSE}
+library(knitr)
+library(tidyverse)            
+library(esquisse)             
+library(kableExtra)
+library(magrittr)
+knitr::opts_chunk$set(echo = TRUE)
+```
+
+\definecolor{gre}{RGB}{81,108,91}
+\fontsize{10}{20}
+\setlength{\leftskip}{9pt}
+
+>**Extract from:**  
+>Bradley Efron and Trevor Hastie  
+>*Computer Age Statistical Inference: Algorithms, Evidence, and Data Science*  
+>*Cambridge University Press, 2016*  
+>*https://web.stanford.edu/~hastie/CASI_files/PDF/casi*  
+
+\setlength{\leftskip}{0pt} 
+\fontsize{14}{20}  
+\vspace{2cm}
+
+
+Modern Bayesian practice uses various strategies to construct an appropriate “prior” $g(\mu )$in the absence of prior experience, leaving many statisticians unconvinced by the resulting Bayesian inferences. Our second example illustrates the difficulty.
+\newline
+
+\textcolor{blue}{\textbf{Table 3.1}}*Scores from two tests taken by 22 students, \textcolor{gre}{\textbf{mechanics}}and \textcolor{gre}{\textbf{vectors}}.
+
+|           |  1 |  2 |  3 |  4 |  5 |  6 |  7 |  8 |  9 | 10 | 11 |
+|-----------|:--:|:--:|:--:|:--:|:--:|:--:|:--:|:--:|:--:|:--:|:--:|
+| mechanics |  7 | 44 | 49 | 59 | 34 | 46 |  0 | 32 | 49 | 52 | 44 |
+| vectors   | 51 | 69 | 41 | 70 | 42 | 40 | 40 | 45 | 57 | 64 | 61 |
+
+|           | 12 | 13 | 14 | 15 | 16 | 17 | 18 | 19 | 20 | 21 | 22 |
+|-----------|:--:|:--:|:--:|:--:|:--:|:--:|:--:|:--:|:--:|:--:|:--:|
+| mechanics | 36 | 42 |  5 | 22 | 18 | 41 | 48 | 31 | 42 | 46 | 63 |
+| vectors   | 59 | 60 | 30 | 58 | 51 | 63 | 38 | 42 | 69 | 49 | 63 |
+
+Table 3.1 shows the scores on two tests,\textcolor{gre}{\textbf{mechanics}} and \textcolor{gre}{\textbf{vectors}}, achieved by $n= $22 students. The sample correlation coefficient between the two scores is $\theta = 0.498$,
+$$\hat{\Theta }= \sum_{i=1}^{22}(m_{i}-\bar{m})(v_{i}-\bar{v})/[ \sum_{i=1}^{22}(m_{i}-\bar{m})^2\sum_{i=1}^{22}(v_{i}-\bar{v})^2]^{1/2}$$
+
+with $m$ and $v$ short for \textcolor{gre}{\textbf{mechanics}}and \textcolor{gre}{\textbf{vectors}}, $\bar{m}$ and $\bar{v}$ their averages.
+
