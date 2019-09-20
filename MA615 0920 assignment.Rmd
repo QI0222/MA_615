@@ -1,0 +1,142 @@
+---
+title: 'Class Assignment: MPG tables and charts'
+author: "Qi Huang"
+date: "September 20, 2019"
+output:
+  ioslides_presentation:
+    df_print: "kable"
+---
+
+
+```{r setup, include=FALSE}
+library(knitr)                ## loading the entire knitr package
+library(tidyverse)              ## the only tidyverse library you need is ggplot2
+library(esquisse)             ## use esquisse to setup the basic plots
+
+library(kableExtra)
+library(magrittr)
+opts_chunk$set(echo = TRUE)
+```
+
+## Class assignment:
+
+Using the MPG dataset, which is available with the ggplot2 library, produce a document that includes the following elements: headers, text, tables, and plots.  
+
+Tables should include a comparison of city and highway mileage by the class of car and the best three car models for city and highway mileage for all the years in which data is available.  
+
+Plot the data displaying as much of the data as you can. Put continuous variables on the axes and include a locally smoothed regression line to show the relationship with mileage.  Also make a box plot comparing city and highway MPG by class of car. 
+---
+
+## Table1
+\newline
+\newline
+
+```{r,echo=FALSE}
+data(mpg)     ## load the data
+
+mpg$cyl <- as.factor(mpg$cyl)   ## convert discrete variables to factors so that they plot
+mpg$drv <- as.factor(mpg$drv)   ## as different colors, not gradations of one color
+mpg$cty <- as.double(mpg$cty)
+
+mpg_1 <- select(mpg, cty, hwy, class) %>% group_by(class) %>% summarise(City=mean(cty),Highway = mean(hwy)) %>% arrange(class,Highway,City)      
+kable(mpg_1,format = "html", booktabs=TRUE, digits = 2,   
+      col.names = c("Class", "City", "Highway"), 
+      caption = "Mean City and Highway MPG by Car Class",align = 'c')%>%
+  kable_styling(position = "center",font_size = 14)
+
+
+```
+
+
+## Table2
+\newline
+```{r,echo=FALSE}
+years = unique(mpg$year)
+
+mpg_2 <- select(mpg,cty,hwy,model,year) %>% filter(year == years[1]) %>% group_by(model) %>% summarise(City = mean(cty),Highway = mean(hwy)) %>% arrange(model,City,Highway)
+mpg_3 <- select(mpg,cty,hwy,model,year) %>% filter(year == years[2]) %>% group_by(model) %>% summarise(City = mean(cty),Highway = mean(hwy)) %>% arrange(model,City,Highway)
+
+cty1999 <- select(mpg_2,model,City)%>%arrange(desc(City))%>%top_n(n = 3,City)
+hwy1999 <- select(mpg_2,model,Highway)%>%arrange(desc(Highway))%>%top_n(n = 3,Highway)
+
+cty2008 <- select(mpg_3,model,City)%>%arrange(desc(City))%>%top_n(n = 3,City)
+
+hwy2008 <- select(mpg_3,model,Highway)%>%arrange(desc(Highway))%>%top_n(n = 3,Highway)
+
+tbl_2 <- cbind(cty1999,
+               hwy1999,
+               cty2008,
+               hwy2008)
+colnames(tbl_2) <- c('Model', 'Milage', 
+                     "Model", "Milage",
+                     'Model', 'Milage',
+                     "Model", "Milage"
+                     )
+kable(tbl_2, digits = 2, format = "html", booktabs=TRUE ,caption = "Top 3 MPG Performing Cars: 1999, 2008",align = "c") %>% kable_styling() %>%
+  add_header_above(c("City 1999"=2, 
+                     "Highway 1999"=2,
+                     "City 2008"=2,
+                   "Highway 2008"=2))%>%kable_styling(font_size = 12)
+#View(mpg_2)
+```
+
+
+## ggplot1
+\newline
+```{r,echo=FALSE}
+ggplot(mpg) +
+ aes(x = displ, y = cty) +
+ geom_point(aes(color=class),size=2,show.legend = F) + geom_smooth(method = 'loess',show.legend = F) +
+ scale_color_hue() +
+ theme_minimal(base_size = 16) +
+ facet_wrap(vars(year)) + 
+  labs(x = "Engine Displacement",y = "City Mileage" ,title = "City MPG by Class of Car: 1999, 2008")
+
+```
+
+## gglot2
+\newline
+```{r,echo=FALSE}
+ggplot(mpg) +
+ aes(x = displ, y = cty) +
+ geom_point(aes(color=class),size=2,show.legend = F) + geom_smooth(method = 'loess',show.legend = F) +
+ scale_color_hue() +
+ theme_minimal(base_size = 16) +
+ facet_wrap(vars(year)) + 
+  labs(x = "Engine Displacement",y = "City Mileage" ,title = "City MPG by Class of Car: 1999, 2008")
+##esquisser(mpg)
+```
+ 
+
+## Boxplot1
+
+```{r,echo=FALSE}
+ggplot(mpg) +
+ aes(x = class, y = cty) +
+ geom_boxplot(fill = "#0c4c8a") +
+ theme_minimal(base_size=16) +
+  labs(x = "Car Class", y = "City Mileage", title = "City MPG by Class of Car: 1999, 2008")
+
+
+
+
+##esquisser(mpg)
+```
+
+## Boxplot2
+```{r,echo=FALSE}
+ggplot(mpg) +
+ aes(x = class, y = hwy) +
+ geom_boxplot(fill = "#0c4c8a") +
+ theme_minimal(base_size=16) +
+  labs(x = "Car Class", y = "Highway Mileage", title = "Highway MPG by Class of Car: 1999, 2008")
+
+
+
+
+
+```
+
+
+
+
