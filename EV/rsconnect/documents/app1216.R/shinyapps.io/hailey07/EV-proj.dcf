@@ -1,0 +1,13 @@
+name: EV-proj
+title: EV-proj
+username:
+account: hailey07
+server: shinyapps.io
+hostUrl: https://api.shinyapps.io/v1
+appId: 1605860
+bundleId: 2674440
+url: https://hailey07.shinyapps.io/EV-proj/
+when: 1576557689.4663
+asMultiple: FALSE
+asStatic: FALSE
+ignoredFiles: 10318_Trip_by_Length.xlsx|AFV Acquisition by Regulated Fleets.xlsx|EVanalysis1216.md|EVanalysis1216.Rpres|EVreport.html|EVreport.Rmd|EVanalysis1216-figure/unnamed-chunk-2-1.png

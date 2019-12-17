@@ -1,0 +1,142 @@
+EVanalysis1216
+========================================================
+author: Qi Huang
+date: 16/12/2019
+autosize: true
+```{r,echo = FALSE}
+pacman::p_load("RSocrata","httr",ggplot2,leaflet,maps,stringr,jsonlite,dplyr,tidyverse,magrittr,rjson,geosphere,
+               NLP,tm,RColorBrewer,wordcloud,wordcloud2,pdftools,tidytext,
+               SentimentAnalysis,syuzhet,usmap)
+#California charging station
+url <-"https://developer.nrel.gov/api/alt-fuel-stations/v1.json?fuel_type=ELEC&state=CA&api_key=UI8ftsbXoXhViwIMWdzStMcwdpyZPqyhHBOpv5sP"
+df1 <- jsonlite::fromJSON(url,simplifyDataFrame = TRUE,flatten = TRUE)
+df1 <- df1$fuel_stations
+
+#All states charging station
+url2 <-"https://developer.nrel.gov/api/alt-fuel-stations/v1.json?fuel_type=ELEC&state=all&api_key=UI8ftsbXoXhViwIMWdzStMcwdpyZPqyhHBOpv5sP"
+df2 <- jsonlite::fromJSON(url2,simplifyDataFrame = TRUE,flatten = TRUE)
+df2 <- df2$fuel_stations
+
+#Yelp data
+devtools::install_github("OmaymaS/yelpr")
+library(yelpr)
+yelp_long <- head(df$longitude,10)
+yelp_lat <- head(df$latitude,10)
+location <- as.data.frame(cbind(yelp_long,yelp_lat))
+key <- "QOk02yFuAi8h5EBi-4eq1VO88CYP_pCw-kyej_XDucODNmTPOsqubieFDm0hmLqM16sjksD8aVEHuw4F00GWoIl9tavU7T4LmRRm2wob9rJVQZ1RYcNQCAKhVRX3XXYx"
+yelpdata1 <- business_search(api_key = key, longitude = yelp_long[1], latitude = yelp_lat[1])
+yelpdata1 <- as.data.frame(yelpdata1)
+yelpdata2 <- business_search(api_key = key, longitude = yelp_long[2], latitude = yelp_lat[2])
+as.data.frame(yelpdata2)
+yelpdata3 <- business_search(api_key = key, longitude = yelp_long[3], latitude = yelp_lat[3])
+as.data.frame(yelpdata3)
+yelpdata4 <- business_search(api_key = key, longitude = yelp_long[4], latitude = yelp_lat[4])
+as.data.frame(yelpdata4)
+yelpdata5 <- business_search(api_key = key, longitude = yelp_long[5], latitude = yelp_lat[5])
+as.data.frame(yelpdata5)
+#Data cleaning
+#choose variables to use
+df <- df %>% select(1,2,3,5,6,7,8,11,12,16,17,21,28,42,44,45,46)
+#clean the access_days_time
+df%<>%mutate(access_time_1 = if_else(str_detect(access_days_time,"24 hours daily"),
+                                     "24 hours daily",
+                                     if_else(str_detect(access_days_time,"Dealership business hours"),
+                                             "Dealership business hours",
+                                             if_else(str_detect(access_days_time,"24 hours"),
+                                                     "Office business hours",
+                                                     if_else(str_detect(access_days_time,"	MON"),
+                                                             "24 hours daily",
+                                                             "others")))))
+#clean the facility type
+df%<>%dplyr::mutate(facility_type_1 = if_else(str_detect(facility_type,"PAY_GARAGE"),
+                                     "PAY_GARAGE",
+                                     if_else(str_detect(facility_type,"HOTEL"),
+                                             "HOTEL",
+                                             if_else(str_detect(facility_type,"CAR DEALER"),
+                                                     "CAR DEALER",
+                                                     if_else(str_detect(facility_type,"MUNI_GOV"),
+                                                             "GOVERNMENT",
+                                                             if_else(str_detect(facility_type,"COVENIENCE_STORE"),
+                                                                     "CONVENIENCE_STORE",
+                                                             "others"))))))
+```
+
+EV Analysis Project
+========================================================
+
+For more details on EV analysis, please visit <https://github.com/QI0222/MA_615>.
+
+- Project Overview
+- EDA
+- Number of charging station (California and Boston)
+- Retarurant around charging station
+- charging station demmand and supply
+- Text Mining
+
+Project Overview
+========================================================
+
+```{r,echo = FALSE}
+library(maps)
+number <- df2 %>% group_by(state) %>% summarise(n())
+colnames(number) <- c("state","number")
+map1 <- plot_usmap(data = number,values = "number",color = "red")+
+  scale_fill_continuous(
+    low = "white", high = "red", name = "charging station", label = scales::comma)+
+  theme(legend.position = "right")
+map1
+```
+This project is to explore the charging station conditions in United States. Four main questions are investigated in this project.
+1.The current number of charging stations in California and United States
+2.If there are sufficient restaurants around the charging station and the distance between these two spots
+3.The demand and the supply of the charging station
+4.Opinions about the charging station (text mining of an article)
+Data are gathered from three sources: U.S. Department of Energy, Yelp data, research paper.
+
+EDA (fule type)
+========================================================
+
+```{r, echo=FALSE}
+#1.1 fuel type
+plot1 <- df %>% ggplot(aes(x=fuel_type_code))+
+                         geom_bar(fill = "steelblue")+
+  geom_text(stat = 'count',aes(label = ..count..),vjust=-.5)+
+  theme_bw()
+plot1
+```
+Most file types are electric supply.
+
+EDA (access time)
+========================================================
+
+```{r, echo=FALSE}
+#1.2 access time
+plot2 <- df %>% ggplot(aes(x=access_time_1))+
+  geom_bar(fill = "steelblue")+
+  geom_text(stat = 'count',aes(label = ..count..),vjust=-.5)+
+  theme_bw()
+plot2
+```
+Most of the charging stations are 24 hours.
+
+
+EDA (facility type)
+========================================================
+
+```{r, echo=FALSE}
+#1.3 facility type
+fac <- as.data.frame(df$facility_type_1)
+fac <- na.omit(fac)
+names(fac) <- "facility"
+slices <- fac %>% group_by(facility) %>% summarise(n())
+names(slices) <- c("facility","count")
+lbls <- c("GOVERNMENT","HOTEL","OTHERS","PAY_GARAGE")
+pct <- round(slices$count/sum(slices$count)*100)
+lbls <- paste(lbls,pct)
+lbls <- paste(lbls,"%",sep="")
+plot3 <- pie(pct,labels = lbls,main = "Pie Chart of Facility Type")
+```
+The facility type of the charging station is related to whether the charging station would have food or other supporting facilities that provide convinence. Based on the pir chart, the facility type is diversified. When the facility of the charging station is "hotel","government", the supporting facilities are supposed to be well satisfied. However, 51% of the facility type is "other", meaning that the further investigation has to be made.
+
+
+
