@@ -1,0 +1,71 @@
+---
+title: "Mid_Project"
+author: "Team Ocean"
+date: "3/6/2020"
+output: pdf_document
+---
+
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(echo = TRUE)
+```
+
+
+Project1: Hand sanitizer
+1).Prior distribution: $$p ~ U(0,1)$$
+Calculating the Likelihood Function for a Proportion
+```{r}
+n=100
+curve(dbeta(x,0,1)) # plot the prior
+
+#Calculating the Likelihood Function for a Proportion
+calcLikelihood <- function(uses,visits){
+  curve(dbinom(uses,visits,x))
+}
+calcLikelihood(50,56)
+
+```
+Calculating the posterior Distribution for a Proportion
+```{r}
+calcPosteriorForProportion <- function(successes, total, a, b)
+  {
+     # Adapted from triplot() in the LearnBayes package
+     # Plot the prior, likelihood and posterior:
+     likelihood_a = successes + 1; likelihood_b = total - successes + 1
+     posterior_a = a + successes;  posterior_b = b + total - successes
+     theta = seq(0.005, 0.995, length = 500)
+     prior = dbeta(theta, a, b)
+     likelihood = dbeta(theta, likelihood_a, likelihood_b)
+     posterior  = dbeta(theta, posterior_a, posterior_b)
+     m = max(c(prior, likelihood, posterior))
+     plot(theta, posterior, type = "l", ylab = "Density", lty = 2, lwd = 3,
+          main = paste("beta(", a, ",", b, ") prior, B(", total, ",", successes, ") data,",
+          "beta(", posterior_a, ",", posterior_b, ") posterior"), ylim = c(0, m), col = "red")
+     lines(theta, likelihood, lty = 1, lwd = 3, col = "blue")
+     lines(theta, prior, lty = 3, lwd = 3, col = "green")
+     legend(x=0.8,y=m, c("Prior", "Likelihood", "Posterior"), lty = c(3, 1, 2),
+          lwd = c(3, 3, 3), col = c("green", "blue", "red"))
+     # Print out summary statistics for the prior, likelihood and posterior:
+     calcBetaMode <- function(aa, bb) { BetaMode <- (aa - 1)/(aa + bb - 2); return(BetaMode); }
+     calcBetaMean <- function(aa, bb) { BetaMean <- (aa)/(aa + bb); return(BetaMean); }
+     calcBetaSd   <- function(aa, bb) { BetaSd <- sqrt((aa * bb)/(((aa + bb)^2) * (aa + bb + 1))); return(BetaSd); }
+     prior_mode      <- calcBetaMode(a, b)
+     likelihood_mode <- calcBetaMode(likelihood_a, likelihood_b)
+     posterior_mode  <- calcBetaMode(posterior_a, posterior_b)
+     prior_mean      <- calcBetaMean(a, b)
+     likelihood_mean <- calcBetaMean(likelihood_a, likelihood_b)
+     posterior_mean  <- calcBetaMean(posterior_a, posterior_b)
+     prior_sd        <- calcBetaSd(a, b)
+     likelihood_sd   <- calcBetaSd(likelihood_a, likelihood_b)
+     posterior_sd    <- calcBetaSd(posterior_a, posterior_b)
+     print(paste("mode for prior=",prior_mode,", for likelihood=",likelihood_mode,", for posterior=",posterior_mode))
+     print(paste("mean for prior=",prior_mean,", for likelihood=",likelihood_mean,", for posterior=",posterior_mean))
+     print(paste("sd for prior=",prior_sd,", for likelihood=",likelihood_sd,", for posterior=",posterior_sd))
+}
+calcPosteriorForProportion(50,56,0,1)
+```
+
+2).
+```{r}
+calcPosteriorForProportion(50,56,13,38)
+```
+
