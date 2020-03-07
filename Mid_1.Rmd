@@ -69,3 +69,49 @@ calcPosteriorForProportion(50,56,0,1)
 calcPosteriorForProportion(50,56,13,38)
 ```
 
+Comparing the plots for the first part of the problem and second part of the problem, we can tell the relationship between prior distribution, likelihood, and posterior distribution. 
+The prior distribution, combines with the likelihood, generating the posterior distribution. In other words, the probability of a nurse using hand sanitizers depends both on the probability a nurse using hand sanitizers before the education program and probability a nurse using hand sanitizers after the education program, which is the test result.  
+From the first plot, we see that when the prior distribution is uniform distribution, which does not tell any information, the posterior distribution is exactly the same as the evidence. Because we only get information form the test result. However, when the prior distribution tells some information, the posterior distribution will be determined by both the prior and the likelihood. Here, the prior distribution says the probability of a nurse using hand sanitizers would be most likely be around 0.25. However, after the education program, the mode of the probability density becomes 0.9. Therefore, the posterior distribution, as a weighted average of the prior and the likelihood, says the probability of a nurse using hand sanitizers is most likely to be around 0.6.
+
+
+
+
+
+Project2: Irragation
+```{r}
+#read the rotation data
+rot <- read.delim("rot.txt",header = FALSE,sep = " ")
+names(rot)[c(1,2,3,4,5)] <- "time"
+time <- tidyr::pivot_longer(rot,time)
+as.data.frame(time)
+time <- time$value
+plot(time)
+hist(time)
+mean(time)
+var(time)
+#the mean of the sample is 23, the variance of the sample is 1.5
+
+
+dis <- 3.14*1320*2
+#distance is a fixed number, 8290
+```
+Central limit theorm: the distribution of the mean from each sample is a normal distribution with mean of 23 and variance of 1.5.
+
+Delta method: because we care about the speed, which is the distance(8290) divided by time(x), we want to know the distribution of $8290/x$. So when we know the distribution of x, we use the delta method to generate the distribution of $8290/x$.
+
+$$g(x) = 8290/x$$
+The mean of the distribtion of $8290/x$ is 8290/mean($x$), and the variance of the distribution of $8290/x$ is $(8290/(mean(x)^2))^2*var(x)/n$
+n = 35
+newmean = 8290/23 = 360
+newvar = (8290/ (1.5^2))*(1.5/35) = 147
+mewsd = sqrt(var) = 12
+```{r}
+#distribution for the speed
+curve(dnorm(x,360,12))
+lb <- qnorm(0.1,mean=360,sd = 12)
+up <- qnorm(0.9,mean = 360, sd = 12)
+lb
+up
+```
+
+The 90% confidence interval would be 344 to 375.
