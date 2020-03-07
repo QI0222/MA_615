@@ -1,6 +1,6 @@
 ---
 title: "Mid_Project"
-author: "Team Ocean"
+author: "Qi Huang"
 date: "3/6/2020"
 output: pdf_document
 ---
@@ -115,3 +115,7 @@ up
 ```
 
 The 90% confidence interval would be 344 to 375.
+
+From the histogram of the orignal dataset, we can not determine whether it is a normal distribution or not, thus we can not generate a reasonable confidence interval. However, based on the central limit theorm, once we know the mean and variance of the population exsit, the mean of the every sample, that is taken from the population, is nearly a normal distribution with a certain mean and variance. Thats the first step. Second, because we want to know the distribution of the speed, which is length/time, while we only know the distribution of time, we have to convert the time to speed and get a distribution of speed. Using the delta method, we can generate a normal distribution of speed with a known mean and variance that are calculated by the mean and variance of the distribution of time.
+Once we know the distribution of speed, which is a normal distribution, we can generate the 90% confidence interval of the speed. In this case, we can say 90% of the speed would fall within the range of 344 to 375.
+
